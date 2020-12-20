@@ -112,7 +112,9 @@ inputs = Input(shape=input_shape, name="encoder_input")
 x = inputs
 # stack of Conv2D(64)-Conv2D(128)-Conv2D(256)
 for filters in layer_filters:
-    x = Conv2D(filters=filters, kernel_size=kernel_size, strides=2, activation="relu", padding="same")(x)
+    x = Conv2D(
+        filters=filters, kernel_size=kernel_size, strides=2, activation="relu", padding="same"
+    )(x)
 
 # shape info needed to build decoder model so we don't do hand computation
 # the input to the decoder's first Conv2DTranspose will have this shape
@@ -134,10 +136,16 @@ x = Reshape((shape[1], shape[2], shape[3]))(x)
 
 # stack of Conv2DTranspose(256)-Conv2DTranspose(128)-Conv2DTranspose(64)
 for filters in layer_filters[::-1]:
-    x = Conv2DTranspose(filters=filters, kernel_size=kernel_size, strides=2, activation="relu", padding="same")(x)
+    x = Conv2DTranspose(
+        filters=filters, kernel_size=kernel_size, strides=2, activation="relu", padding="same"
+    )(x)
 
 outputs = Conv2DTranspose(
-    filters=channels, kernel_size=kernel_size, activation="sigmoid", padding="same", name="decoder_output"
+    filters=channels,
+    kernel_size=kernel_size,
+    activation="sigmoid",
+    padding="same",
+    name="decoder_output",
 )(x)
 
 # instantiate decoder model
@@ -157,7 +165,9 @@ if not os.path.isdir(save_dir):
 filepath = os.path.join(save_dir, model_name)
 
 # reduce learning rate by sqrt(0.1) if the loss does not improve in 5 epochs
-lr_reducer = ReduceLROnPlateau(factor=np.sqrt(0.1), cooldown=0, patience=5, verbose=1, min_lr=0.5e-6)
+lr_reducer = ReduceLROnPlateau(
+    factor=np.sqrt(0.1), cooldown=0, patience=5, verbose=1, min_lr=0.5e-6
+)
 
 # save weights for future use (e.g. reload parameters w/o training)
 checkpoint = ModelCheckpoint(filepath=filepath, monitor="val_loss", verbose=1, save_best_only=True)
@@ -170,7 +180,12 @@ callbacks = [lr_reducer, checkpoint]
 
 # train the autoencoder
 autoencoder.fit(
-    x_train_gray, x_train, validation_data=(x_test_gray, x_test), epochs=30, batch_size=batch_size, callbacks=callbacks
+    x_train_gray,
+    x_train,
+    validation_data=(x_test_gray, x_test),
+    epochs=30,
+    batch_size=batch_size,
+    callbacks=callbacks,
 )
 
 # predict the autoencoder output from test data
