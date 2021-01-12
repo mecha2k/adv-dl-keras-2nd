@@ -31,14 +31,6 @@ import matplotlib.pyplot as plt
 import os
 
 
-gpus = tf.config.experimental.list_physical_devices("GPU")
-if gpus:
-    try:
-        tf.config.experimental.set_visible_devices(gpus[0], "GPU")
-    except RuntimeError as e:
-        print(e)
-
-
 def plot_results(models, data, batch_size=32, model_name="autoencoder_2dim"):
     """Plots 2-dim latent values as scatter plot of digits
         then, plot MNIST digits as function of 2-dim latent vector

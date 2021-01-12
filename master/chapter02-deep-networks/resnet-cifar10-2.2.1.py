@@ -175,8 +175,8 @@ def resnet_v1(input_shape, depth, num_classes=10):
     Stacks of 2 x (3 x 3) Conv2D-BN-ReLU
     Last ReLU is after the shortcut connection.
     At the beginning of each stage, the feature map size is halved
-    (downsampled) by a convolutional layer with strides=2, while 
-    the number of filters is doubled. Within each stage, 
+    (downsampled) by a convolutional layer with strides=2, while
+    the number of filters is doubled. Within each stage,
     the layers have the same number filters and the
     same number of filters.
     Features maps sizes:
@@ -235,9 +235,7 @@ def resnet_v1(input_shape, depth, num_classes=10):
     # v1 does not use BN after last shortcut connection-ReLU
     x = AveragePooling2D(pool_size=8)(x)
     y = Flatten()(x)
-    outputs = Dense(
-        num_classes, activation="softmax", kernel_initializer="he_normal"
-    )(y)
+    outputs = Dense(num_classes, activation="softmax", kernel_initializer="he_normal")(y)
 
     # instantiate model.
     model = Model(inputs=inputs, outputs=outputs)
@@ -247,15 +245,15 @@ def resnet_v1(input_shape, depth, num_classes=10):
 def resnet_v2(input_shape, depth, num_classes=10):
     """ResNet Version 2 Model builder [b]
 
-    Stacks of (1 x 1)-(3 x 3)-(1 x 1) BN-ReLU-Conv2D or 
+    Stacks of (1 x 1)-(3 x 3)-(1 x 1) BN-ReLU-Conv2D or
     also known as bottleneck layer.
     First shortcut connection per layer is 1 x 1 Conv2D.
     Second and onwards shortcut connection is identity.
-    At the beginning of each stage, 
+    At the beginning of each stage,
     the feature map size is halved (downsampled)
-    by a convolutional layer with strides=2, 
+    by a convolutional layer with strides=2,
     while the number of filter maps is
-    doubled. Within each stage, the layers have 
+    doubled. Within each stage, the layers have
     the same number filters and the same filter map sizes.
     Features maps sizes:
     conv1  : 32x32,  16
@@ -311,9 +309,7 @@ def resnet_v2(input_shape, depth, num_classes=10):
                 batch_normalization=batch_normalization,
                 conv_first=False,
             )
-            y = resnet_layer(
-                inputs=y, num_filters=num_filters_in, conv_first=False
-            )
+            y = resnet_layer(inputs=y, num_filters=num_filters_in, conv_first=False)
             y = resnet_layer(
                 inputs=y,
                 num_filters=num_filters_out,
@@ -341,9 +337,7 @@ def resnet_v2(input_shape, depth, num_classes=10):
     x = Activation("relu")(x)
     x = AveragePooling2D(pool_size=8)(x)
     y = Flatten()(x)
-    outputs = Dense(
-        num_classes, activation="softmax", kernel_initializer="he_normal"
-    )(y)
+    outputs = Dense(num_classes, activation="softmax", kernel_initializer="he_normal")(y)
 
     # instantiate model.
     model = Model(inputs=inputs, outputs=outputs)
@@ -377,15 +371,11 @@ if not os.path.isdir(save_dir):
 filepath = os.path.join(save_dir, model_name)
 
 # prepare callbacks for model saving and for learning rate adjustment.
-checkpoint = ModelCheckpoint(
-    filepath=filepath, monitor="val_acc", verbose=1, save_best_only=True
-)
+checkpoint = ModelCheckpoint(filepath=filepath, monitor="val_acc", verbose=1, save_best_only=True)
 
 lr_scheduler = LearningRateScheduler(lr_schedule)
 
-lr_reducer = ReduceLROnPlateau(
-    factor=np.sqrt(0.1), cooldown=0, patience=5, min_lr=0.5e-6
-)
+lr_reducer = ReduceLROnPlateau(factor=np.sqrt(0.1), cooldown=0, patience=5, min_lr=0.5e-6)
 
 callbacks = [checkpoint, lr_reducer, lr_scheduler]
 
